@@ -304,6 +304,7 @@ class CanvasEditor {
     canvas.addEventListener('mousedown', e => {
       this.onMousedown(e, pageIndex)
     })
+
     this.container.appendChild(canvas)
     let ctx = canvas.getContext('2d')
     ctx.scale(dpr, dpr)
@@ -334,11 +335,14 @@ class CanvasEditor {
 
   // 鼠标移动事件
   onMousemove(e) {
+
+    // console.log(e,'eeeee')
     this.mousemoveEvent = e
     if (this.mousemoveTimer) {
       return
     }
     this.mousemoveTimer = setTimeout(() => {
+      console.log(88888,this.isMousedown)
       this.mousemoveTimer = null
       if (!this.isMousedown) {
         return
@@ -346,6 +350,7 @@ class CanvasEditor {
       e = this.mousemoveEvent
       // 鼠标当前所在页面
       let pageIndex = this.getPosInPageIndex(e.clientX, e.clientY)
+      console.log(pageIndex,'pageIndexpageIndex')
       if (pageIndex === -1) {
         return
       }
@@ -494,7 +499,7 @@ class CanvasEditor {
     this.cursorEl.style.height = height + 'px'
     this.cursorEl.style.opacity = 1
     setTimeout(() => {
-      this.focus()
+      this.focus(left, top+height)
       this.cursorEl.style.display = 'block'
       this.blinkCursor(0)
     }, 0)
@@ -515,11 +520,10 @@ class CanvasEditor {
   }
 
   // 聚焦
-  focus() {
+  focus(left, top) {
     if (!this.textareaEl) {
       this.textareaEl = document.createElement('textarea')
-      this.textareaEl.style.position = 'fixed'
-      this.textareaEl.style.left = '-99999px'
+      this.textareaEl.style.position = 'absolute'
       this.textareaEl.addEventListener('input', this.onInput.bind(this))
       this.textareaEl.addEventListener('compositionstart', () => {
         this.isCompositing = true
@@ -529,10 +533,17 @@ class CanvasEditor {
       })
       this.textareaEl.addEventListener('keydown', this.onKeydown.bind(this))
       this.textareaEl.addEventListener('blur', () => {
-        this.hideCursor()
+       this.hideCursor()
       })
-      document.body.appendChild(this.textareaEl)
+      this.textareaEl.addEventListener('paste', e => {
+        e.preventDefault()
+        e.data = e.clipboardData.getData('text')
+        this.onInput(e)
+      })
+      this.container.appendChild(this.textareaEl)
     }
+    this.textareaEl.style.left = left?left+'px':'-99999px'
+    this.textareaEl.style.top = top?top+'px':'-99999px'
     this.textareaEl.focus()
   }
 
@@ -652,6 +663,7 @@ class CanvasEditor {
   // 将相对于浏览器窗口的坐标转换成相对于页面canvas
   windowToCanvas(e, canvas) {
     let { left, top } = canvas.getBoundingClientRect()
+    console.log(left, top,'left, topleft, top')
     return {
       x: e.clientX - left,
       y: e.clientY - top

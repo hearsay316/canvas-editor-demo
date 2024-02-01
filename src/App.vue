@@ -71,7 +71,7 @@
           :value="item.value"
         />
       </el-select>
-    </div>
+    </div>曾多次
     <div class="editorContainer" ref="editorContainer"></div>
   </div>
 </template>
@@ -84,6 +84,7 @@ import data from './mock'
 const editorContainer = ref(null)
 let editor = null
 onMounted(() => {
+  console.log(data,'data')
   editor = new CanvasEditor(editorContainer.value, data)
   editor.listeners.mousedown = positionIndex => {
     checkStyle(editor.data[positionIndex])
